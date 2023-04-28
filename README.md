@@ -6,9 +6,7 @@ The candidate should create a simple task manager app using ReactJS frontend, Ne
 
 ---
 ### Main Goal
-Regardless what is your background, as long as you are capable to learn, you can qualify for next stage.
-
-We seek for passionate and fast learner developer to be part of us.
+We're looking for developers who are passionate about their work and can quickly acquire new skills, regardless of their technical background. We believe in equal opportunities for everyone who meets these qualifications, and we would love for you to join our team.
 
 ---
 ### Rules
@@ -18,9 +16,9 @@ We seek for passionate and fast learner developer to be part of us.
 4. Email us to notify you have completed the test.
 ---
 
-### Frontend Features:
+### Features:
 
-1. **Add Task:** Allow users to add a new task by typing in a task description and hitting enter or clicking a button. Each task should be assigned a unique ID.
+1. **Add Task:** Allow users to add a new task by typing in a task description and hitting enter or clicking a button.
 2. **List Tasks:** Display the list of tasks in a scrollable container. Each task item should show the task description and a checkbox to mark the task as completed.
 3. **Mark Task as Completed:** When a user checks the checkbox, the task should be marked as completed. A visual indication (e.g., strike-through or change in background color) should differentiate completed tasks from pending ones.
 4. **Delete Task:** Include a delete button/icon next to each task, allowing users to delete tasks from the list.
@@ -39,11 +37,9 @@ We seek for passionate and fast learner developer to be part of us.
 - Divide the app into reusable components with proper separation of concerns.
 - Demonstrate the use of ReactJS concepts such as components, state management, and event handling.
 - Use NestJS to create the backend and set up a PostgreSQL database for storing tasks.
-- Use TypeORM for database interactions.
+- Use TypeORM for database interactions
 
-### Optional Enhancements:
-
-While not required, you can suggest these optional enhancements for candidates who finish the main task early or want to showcase additional skills:
+### Bonus:
 
 1. Implement local storage to persist tasks even after the browser is closed and reopened.
 2. Add a feature to edit existing tasks.
