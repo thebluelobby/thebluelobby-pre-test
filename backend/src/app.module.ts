@@ -1,25 +1,12 @@
 import { Module } from '@nestjs/common';
-import { AppEntity } from "./app.entity";
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TaskModule } from './task/task.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import config from './config/ormconfig';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: "localhost",
-      port: 5432,
-      username: 'postgres',
-      password: 'password',
-      database: 'tbl_pretest',
-      synchronize: true,
-      entities: [AppEntity],
-      logging: true
-    }),
-    TypeOrmModule.forFeature([AppEntity])
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    TypeOrmModule.forRoot(config),
+    TaskModule
+  ]
 })
-export class AppModule {}
+export class AppModule { }
