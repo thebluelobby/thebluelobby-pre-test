@@ -12,8 +12,7 @@ We're looking for developers who are passionate about their work and can quickly
 ### Rules
 1. Fork this repository
 2. Commit your changes to your repository
-3. Create pull request
-4. Email us to notify you have completed the test.
+3. Share with us your forked repository URL once you have completed the assessment
 ---
 
 ### Features:
@@ -38,6 +37,7 @@ We're looking for developers who are passionate about their work and can quickly
 - Demonstrate the use of ReactJS concepts such as components, state management, and event handling.
 - Use NestJS to create the backend and set up a PostgreSQL database for storing tasks.
 - Use TypeORM for database interactions
+- You have the freedom to choose the CSS framework of your choice (or no framework at all) but we use Material UI in our projects, so it would be a plus if you use it in your project.
 
 ### Bonus:
 
