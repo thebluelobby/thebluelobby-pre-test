@@ -10,7 +10,19 @@ export class TasksService {
     @InjectRepository(TaskEntity)
     private readonly taskRepository: Repository<TaskEntity>,
   ) {}
-  create(createTaskDto: CreateTaskDto) {
+
+  private toggleCompletion(id: string, value: boolean) {
+    return this.taskRepository
+      .findOneByOrFail({
+        id,
+      })
+      .then((task) => {
+        task.isCompleted = value;
+        return this.taskRepository.save(task);
+      });
+  }
+
+  create(createTaskDto: CreateTaskDto): Promise<TaskEntity> {
     const newTask = new TaskEntity();
     newTask.description = createTaskDto.description;
 
@@ -19,15 +31,19 @@ export class TasksService {
     return this.taskRepository.save(newTask);
   }
 
-  findAll() {
+  findAll(): Promise<TaskEntity[]> {
     return this.taskRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  complete(id: string): Promise<TaskEntity> {
+    return this.toggleCompletion(id, true);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  uncomplete(id: string): Promise<TaskEntity> {
+    return this.toggleCompletion(id, false);
+  }
+
+  remove(id: string) {
+    return this.taskRepository.delete({ id });
   }
 }
