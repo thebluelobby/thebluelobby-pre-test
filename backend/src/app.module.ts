@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TasksModule } from './tasks/tasks.module';
+import { TaskEntity } from './tasks/entities/task.entity';
 
 @Module({
   imports: [
@@ -15,7 +16,7 @@ import { TasksModule } from './tasks/tasks.module';
       password: 'password',
       database: 'tbl_pretest',
       synchronize: true,
-      entities: [AppEntity],
+      entities: [AppEntity, TaskEntity],
       logging: true,
     }),
     TypeOrmModule.forFeature([AppEntity]),
