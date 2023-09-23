@@ -3,6 +3,7 @@ import { AppEntity } from './app.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { TasksModule } from './tasks/tasks.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       logging: true,
     }),
     TypeOrmModule.forFeature([AppEntity]),
+    TasksModule,
   ],
   controllers: [AppController],
   providers: [AppService],
