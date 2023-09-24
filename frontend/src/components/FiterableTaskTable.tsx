@@ -5,8 +5,6 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-
-// import InputBase from "@mui/material/InputBase";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
@@ -16,54 +14,42 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
+import { Priority, Task } from "../types/tasks";
+import {
+  completeTask,
+  createTask,
+  getTasks,
+  uncompleteTask,
+  deleteTask,
+} from "../api/tasks";
 
-enum Priority {
-  LOW = "LOW",
-  MEDIUM = "MEDIUM",
-  HIGH = "HIGH",
-}
 interface FormData {
   description: string;
   priority?: Priority;
 }
 
+type TaskSimplified = Omit<Task, "deletedAt" | "createdAt" | "updatedAt">;
+
 const FilterableTaskTable = () => {
-  const [tasks, setTasks] = useState([
-    {
-      uuid: "1",
-      description: "hello",
-      isCompleted: true,
-    },
-    {
-      uuid: "2",
-      description: "hello",
-      isCompleted: true,
-    },
-    {
-      uuid: "3",
-      description: "my",
-      isCompleted: false,
-    },
-    {
-      uuid: "4",
-      description:
-        "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
-      isCompleted: true,
-    },
-  ]);
+  const [tasks, setTasks] = useState<TaskSimplified[]>([]);
 
   const [formData, setFormData] = useState<FormData>({
     description: "",
   });
 
+  useEffect(() => {
+    getTasks()
+      .then((results) => setTasks(results))
+      .catch((err) => console.log(err));
+  }, []);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const newTask = [
-      ...tasks,
-      { ...formData, isCompleted: false, uuid: `${Math.random() * 100000}` },
-    ];
-    setTasks(newTask);
+    createTask(formData).then((newTask) => {
+      const { description, isCompleted, id, priority } = newTask;
+      setTasks([...tasks, { description, isCompleted, id, priority }]);
+    });
     setFormData({
       description: "",
     });
@@ -71,23 +57,33 @@ const FilterableTaskTable = () => {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-
     setFormData({ ...formData, [name]: value });
   };
 
-  const toggleTaskCompletion = (uuid: string) => {
-    setTasks(
-      tasks.map((task) => {
-        if (task.uuid === uuid) {
-          return { ...task, isCompleted: !task.isCompleted };
-        }
-        return task;
-      })
-    );
+  const toggleTaskCompletion = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    let completionToggler = completeTask;
+    if (task.isCompleted) {
+      completionToggler = uncompleteTask;
+    }
+    completionToggler(id).then(() => {
+      setTasks(
+        tasks.map((task) => {
+          if (task.id === id) {
+            return { ...task, isCompleted: !task.isCompleted };
+          }
+          return task;
+        })
+      );
+    });
   };
 
-  const deleteTask = (uuid: string) => {
-    setTasks(tasks.filter((task) => task.uuid !== uuid));
+  const removeTask = (id: string) => {
+    deleteTask(id)
+      .then(() => {
+        setTasks(tasks.filter((task) => task.id !== id));
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <div>
@@ -95,7 +91,7 @@ const FilterableTaskTable = () => {
         <Table aria-label="Task Lists">
           <TableBody>
             {tasks.map((task) => (
-              <TableRow key={task.uuid}>
+              <TableRow key={task.id}>
                 <TableCell>{task.description}</TableCell>
                 <TableCell
                   align="right"
@@ -107,15 +103,15 @@ const FilterableTaskTable = () => {
                     type="button"
                     sx={{ p: "10px" }}
                     aria-label="delete task"
-                    onClick={() => deleteTask(task.uuid)}
+                    onClick={() => removeTask(task.id)}
                   >
                     <DeleteOutline />
                   </IconButton>
                   <Checkbox
                     inputProps={{ "aria-label": "Task Checkbox" }}
-                    id={`checkbox-${task.uuid}`}
+                    id={`checkbox-${task.id}`}
                     checked={task.isCompleted}
-                    onChange={() => toggleTaskCompletion(task?.uuid)}
+                    onChange={() => toggleTaskCompletion(task?.id)}
                   />
                 </TableCell>
               </TableRow>
