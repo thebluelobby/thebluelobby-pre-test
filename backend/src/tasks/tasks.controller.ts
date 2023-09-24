@@ -5,7 +5,7 @@ import {
   Body,
   Param,
   Delete,
-  Put,
+  Patch,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -24,12 +24,12 @@ export class TasksController {
     return this.tasksService.findAll();
   }
 
-  @Put(':id/complete')
+  @Patch(':id/complete')
   complete(@Param('id') id: string) {
     return this.tasksService.complete(id);
   }
 
-  @Put(':id/uncomplete')
+  @Patch(':id/uncomplete')
   uncomplete(@Param('id') id: string) {
     return this.tasksService.uncomplete(id);
   }
