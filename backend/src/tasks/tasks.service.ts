@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto, FilterDto, SortDto } from './dto/task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskEntity } from './entities/task.entity';
 import { Repository } from 'typeorm';
@@ -31,8 +31,19 @@ export class TasksService {
     return this.taskRepository.save(newTask);
   }
 
-  findAll(): Promise<TaskEntity[]> {
-    return this.taskRepository.find();
+  findAll(sort?: SortDto, filter?: FilterDto): Promise<TaskEntity[]> {
+    const queryBuilder = this.taskRepository.createQueryBuilder('task');
+    const { by = 'createdAt', order = 'DESC' } = sort || {};
+
+    if (by && order) {
+      queryBuilder.orderBy(`task.${by}`, order);
+    }
+    if (filter?.isCompleted !== undefined) {
+      queryBuilder.andWhere('task.isCompleted = :completed', {
+        completed: filter.isCompleted,
+      });
+    }
+    return queryBuilder.getMany();
   }
 
   complete(id: string): Promise<TaskEntity> {

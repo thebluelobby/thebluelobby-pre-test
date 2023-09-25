@@ -6,9 +6,10 @@ import {
   Param,
   Delete,
   Patch,
+  Query,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task.dto';
+import { CreateTaskDto, FilterDto, SortDto } from './dto/task.dto';
 
 @Controller('tasks')
 export class TasksController {
@@ -20,8 +21,8 @@ export class TasksController {
   }
 
   @Get()
-  findAll() {
-    return this.tasksService.findAll();
+  findAll(@Query('sort') sort: SortDto, @Query('filter') filter: FilterDto) {
+    return this.tasksService.findAll(sort, filter);
   }
 
   @Patch(':id/complete')
