@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -26,6 +26,8 @@ import {
 } from "../context/ListOptionContext";
 import { ListOptionMenu } from "./ListOptionMenu";
 import { CreateTaskForm } from "./CreateTaskForm";
+import InfiniteScrollComponent from "./InfiniteScroll";
+import Box from "@mui/material/Box";
 
 export interface IFilterSortSetup {
   filter: FilterTypes;
@@ -41,9 +43,13 @@ const FilterableTaskTable = () => {
   const [tasks, setTasks] = useState<TaskSimplified[]>([]);
   const [refresh, setRefresh] = useState<boolean>(false);
 
+  const maxPageRef = useRef<number | undefined>(undefined);
+  const prevPageRef = useRef<number>(1);
+
   const { state } = useListOption();
 
   useEffect(() => {
+    console.log(state);
     getTasks(
       state.filter === FilterTypes.ALL
         ? null
@@ -58,11 +64,27 @@ const FilterableTaskTable = () => {
                 : "dueDate",
             order: state.sort.isAscendingOrder ? "ASC" : "DESC",
           }
-        : null
+        : null,
+      state?.page,
+      state?.pageSize
     )
-      .then((results) => setTasks(results.data))
+      .then((results) => {
+        console.log({
+          prev: prevPageRef.current,
+          cur: state.page,
+          size: state.pageSize,
+        });
+        maxPageRef.current = results?.maxPage;
+        if (state?.page - prevPageRef.current === 1) {
+          setTasks((prev) => [...(prev || []), ...results.data]);
+        } else {
+          console.log("refresh", [...results.data]);
+          setTasks([...results.data]);
+        }
+        prevPageRef.current = state.page;
+      })
       .catch((err) => console.log(err));
-  }, [state, refresh]);
+  }, [state]);
 
   const toggleTaskCompletion = (id: string) => {
     const task = tasks.find((t) => t.id === id);
@@ -90,86 +112,85 @@ const FilterableTaskTable = () => {
       .catch((err) => console.log(err));
   };
 
-  /*
-  to do
-  // - separation of concern
-  - Implement local storage to persist tasks even after the browser is closed and reopened.
-- Add a feature to edit existing tasks.
-- Implement unit tests for components using a testing library like Jest and React Testing Library.
-- Add responsiveness to the app for different screen sizes.
-- Implement data validation and error handling
-- Add pagination to the list tasks endpoint, and implement infinite scrolling or a "Load more" button in the frontend.
-- Implement sorting options for tasks, such as by creation date, due date, or priority.
-   */
   return (
-    <div>
+    <Box>
       <ListOptionMenu />
-      <TableContainer component={Paper}>
-        <Table aria-label="Task Lists">
-          <TableBody>
-            {tasks.map((task) => (
-              <TableRow
-                key={task.id}
-                sx={{
-                  ...(task.isCompleted
-                    ? {
-                        backgroundColor: "#f5f5f5",
-                      }
-                    : {}),
-                }}
-              >
-                <TableCell
-                  sx={{
-                    ...(task.isCompleted
-                      ? {
-                          textDecoration: "line-through",
-                          color: "gray",
-                        }
-                      : {}),
-                  }}
-                >
-                  {task.description}
-                </TableCell>
-                <TableCell
-                  align="right"
-                  sx={{
-                    width: "168px",
-                  }}
-                >
-                  {task.priority === Priority.HIGH ? (
-                    <Chip
-                      label="High"
-                      size="small"
-                      color="error"
-                      variant="outlined"
-                    />
-                  ) : task.priority === Priority.LOW ? (
-                    <Chip label="Low" size="small" variant="outlined" />
-                  ) : (
-                    ""
-                  )}
-                  <IconButton
-                    type="button"
-                    sx={{ p: "10px" }}
-                    aria-label="delete task"
-                    onClick={() => removeTask(task.id)}
+      <Box
+        sx={{
+          maxWidth: "650px",
+          margin: "0 auto",
+        }}
+      >
+        <InfiniteScrollComponent maxPage={maxPageRef.current}>
+          <TableContainer component={Paper}>
+            <Table aria-label="Task Lists">
+              <TableBody>
+                {tasks.map((task) => (
+                  <TableRow
+                    key={task.id}
+                    sx={{
+                      ...(task.isCompleted
+                        ? {
+                            backgroundColor: "#f5f5f5",
+                          }
+                        : {}),
+                    }}
+                    onClick={() => toggleTaskCompletion(task?.id)}
                   >
-                    <DeleteOutline />
-                  </IconButton>
-                  <Checkbox
-                    inputProps={{ "aria-label": "Task Checkbox" }}
-                    id={`checkbox-${task.id}`}
-                    checked={task.isCompleted}
-                    onChange={() => toggleTaskCompletion(task?.id)}
-                  />
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <CreateTaskForm successFunction={() => setRefresh(!refresh)} />
-    </div>
+                    <TableCell
+                      sx={{
+                        ...(task.isCompleted
+                          ? {
+                              textDecoration: "line-through",
+                              color: "gray",
+                            }
+                          : {}),
+                      }}
+                    >
+                      {task.description}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      sx={{
+                        width: "168px",
+                      }}
+                    >
+                      {task.priority === Priority.HIGH ? (
+                        <Chip
+                          label="High"
+                          size="small"
+                          color="error"
+                          variant="outlined"
+                        />
+                      ) : task.priority === Priority.LOW ? (
+                        <Chip label="Low" size="small" variant="outlined" />
+                      ) : (
+                        ""
+                      )}
+                      <IconButton
+                        type="button"
+                        sx={{ p: "10px" }}
+                        aria-label="delete task"
+                        onClick={() => removeTask(task.id)}
+                      >
+                        <DeleteOutline />
+                      </IconButton>
+                      <Checkbox
+                        inputProps={{ "aria-label": "Task Checkbox" }}
+                        id={`checkbox-${task.id}`}
+                        checked={task.isCompleted}
+                        onChange={() => toggleTaskCompletion(task?.id)}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </InfiniteScrollComponent>
+      </Box>
+      <CreateTaskForm successFunction={() => setRefresh((prev) => !prev)} />
+    </Box>
   );
 };
 

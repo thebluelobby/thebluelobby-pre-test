@@ -7,7 +7,9 @@ const generateTaskListUrl = (
   filter?: {
     isCompleted?: boolean;
   },
-  sort?: { by: "createdAt" | "priority" | "dueDate"; order: "DESC" | "ASC" }
+  sort?: { by: "createdAt" | "priority" | "dueDate"; order: "DESC" | "ASC" },
+  page?: number,
+  pageSize?: number
 ) => {
   const queryParams = [];
   const filterKeys = Object.keys(filter || {});
@@ -24,6 +26,13 @@ const generateTaskListUrl = (
       queryParams.push(`sort[${key}]=${sort[key]}`);
     });
   }
+  if (page) {
+    queryParams.push(`page=${page}`);
+  }
+
+  if (pageSize) {
+    queryParams.push(`pageSize=${pageSize}`);
+  }
 
   const queryString = queryParams.join("&");
   const url = `${queryString ? `?${queryString}` : ""}`;
@@ -35,7 +44,9 @@ export const getTasks = (
   filter?: {
     isCompleted?: boolean;
   },
-  sort?: { by: "createdAt" | "priority" | "dueDate"; order: "DESC" | "ASC" }
+  sort?: { by: "createdAt" | "priority" | "dueDate"; order: "DESC" | "ASC" },
+  page?: number,
+  pageSize?: number
 ) => {
   console.log("filter", filter);
   console.log(generateTaskListUrl(filter, sort));
@@ -45,7 +56,10 @@ export const getTasks = (
     previousPage?: number;
     maxPage: number;
     pageSize: number;
-  }>(HttpMethod.GET, `/tasks${generateTaskListUrl(filter, sort)}`);
+  }>(
+    HttpMethod.GET,
+    `/tasks${generateTaskListUrl(filter, sort, page, pageSize)}`
+  );
 };
 
 export const createTask = (body: CreateTask) => {

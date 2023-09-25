@@ -17,6 +17,8 @@ const listOptionInitial = {
     by: SortTypes.CREATION_DATE,
     isAscendingOrder: true,
   },
+  page: 1,
+  pageSize: 12,
 };
 
 export interface IListOption {
@@ -25,9 +27,14 @@ export interface IListOption {
     by?: SortTypes;
     isAscendingOrder?: boolean;
   };
+  page?: number;
+  pageSize?: number;
 }
 
-type IAction = { type: "update-options" | "reset"; payload?: IListOption };
+type IAction = {
+  type: "update-options" | "replace-options" | "reset";
+  payload?: IListOption;
+};
 type IDispatch = (action: IAction) => void;
 
 const ListOptionContext = createContext<
@@ -42,8 +49,14 @@ function listOptionReducer(state: IListOption, action: IAction) {
         ...action.payload,
       };
     }
+    case "replace-options": {
+      return {
+        ...listOptionInitial,
+        ...action.payload,
+      };
+    }
     case "reset": {
-      return state;
+      return listOptionInitial;
     }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);

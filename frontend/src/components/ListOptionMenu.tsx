@@ -9,6 +9,8 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import Select from "@mui/material/Select";
+import Typography from "@mui/material/Typography";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -43,15 +45,18 @@ export const ListOptionMenu = () => {
     },
   };
 
+  const isMobile = useMediaQuery("(max-width:650px)");
+  const isSmallMobile = useMediaQuery("(max-width:570px)");
+
   const handleMenuClick = (event: MouseEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
   };
   const handleMenuClose = (type?: SortTypes) => {
     if (type) {
       dispatch({
-        type: "update-options",
+        type: "replace-options",
         payload: {
-          ...state,
+          filter: state.filter,
           sort: {
             by: type,
             isAscendingOrder:
@@ -66,70 +71,92 @@ export const ListOptionMenu = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container justifyContent="flex-end">
-        <Box
+    <Box sx={{ flexGrow: 1, marginTop: "12px" }}>
+      <Grid container>
+        <Typography
+          variant={isMobile ? "h4" : "h3"}
+          gutterBottom
           sx={{
-            margin: "8px",
+            flex: 1,
           }}
         >
-          <Button
-            aria-controls={open ? "sort menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            onClick={handleMenuClick}
-          >
-            Sort By: {sorter[state.sort.by].name}
-          </Button>
-          <Menu
-            anchorEl={menuAnchorEl}
-            open={open}
-            onClose={() => handleMenuClose()}
-            MenuListProps={{
-              "aria-labelledby": "basic-button",
+          Simple Task
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            ...(isSmallMobile
+              ? {
+                  justifyContent: "flex-end",
+                  width: "100%",
+                }
+              : {}),
+          }}
+        >
+          <Box
+            sx={{
+              margin: "8px",
             }}
           >
-            {(Object.keys(sorter) as SortTypes[]).map((key) => (
-              <MenuItem
-                onClick={() => handleMenuClose(key)}
-                id={sorter[key].tag}
-                key={sorter[key].tag}
-              >
-                <ListItemIcon>
-                  {state?.sort.by === key &&
-                    (state?.sort.isAscendingOrder ? (
-                      <ArrowDownwardIcon />
-                    ) : (
-                      <ArrowUpwardIcon />
-                    ))}
-                </ListItemIcon>
-                {sorter[key].name}
-              </MenuItem>
-            ))}
-          </Menu>
+            <Button
+              aria-controls={open ? "sort menu" : undefined}
+              aria-haspopup="true"
+              aria-expanded={open ? "true" : undefined}
+              onClick={handleMenuClick}
+            >
+              Sort By: {sorter[state.sort.by].name}
+            </Button>
+            <Menu
+              anchorEl={menuAnchorEl}
+              open={open}
+              onClose={() => handleMenuClose()}
+              MenuListProps={{
+                "aria-labelledby": "basic-button",
+              }}
+            >
+              {(Object.keys(sorter) as SortTypes[]).map((key) => (
+                <MenuItem
+                  onClick={() => handleMenuClose(key)}
+                  id={sorter[key].tag}
+                  key={sorter[key].tag}
+                >
+                  <ListItemIcon>
+                    {state?.sort.by === key &&
+                      (state?.sort.isAscendingOrder ? (
+                        <ArrowDownwardIcon />
+                      ) : (
+                        <ArrowUpwardIcon />
+                      ))}
+                  </ListItemIcon>
+                  {sorter[key].name}
+                </MenuItem>
+              ))}
+            </Menu>
+          </Box>
+          <FormControl sx={{ m: 1, minWidth: 120 }}>
+            <InputLabel>Filter</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              label="filter"
+              name="filter"
+              value={state.filter}
+              onChange={(e) =>
+                dispatch({
+                  type: "replace-options",
+                  payload: {
+                    sort: state.sort,
+                    filter: e.target.value as FilterTypes,
+                  },
+                })
+              }
+              size="small"
+            >
+              <MenuItem value={FilterTypes.ALL}>All</MenuItem>
+              <MenuItem value={FilterTypes.PENDING}>Pending</MenuItem>
+              <MenuItem value={FilterTypes.COMPLETED}>Completed</MenuItem>
+            </Select>
+          </FormControl>
         </Box>
-        <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
-          <InputLabel>Filter</InputLabel>
-          <Select
-            labelId="demo-select-small-label"
-            label="filter"
-            name="filter"
-            value={state.filter}
-            onChange={(e) =>
-              dispatch({
-                type: "update-options",
-                payload: {
-                  ...state,
-                  filter: e.target.value as FilterTypes,
-                },
-              })
-            }
-          >
-            <MenuItem value={FilterTypes.ALL}>All</MenuItem>
-            <MenuItem value={FilterTypes.PENDING}>Pending</MenuItem>
-            <MenuItem value={FilterTypes.COMPLETED}>Completed</MenuItem>
-          </Select>
-        </FormControl>
       </Grid>
     </Box>
   );
