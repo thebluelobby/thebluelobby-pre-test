@@ -24,10 +24,18 @@ export class TasksController {
   findAll(
     @Query('sort') sort: SortDto,
     @Query('filter') filter: FilterDto,
-    @Query('page') page: number,
-    @Query('pageSize') pageSize: number,
+    @Query('page') page: string,
+    @Query('pageSize') pageSize: string,
   ) {
-    return this.tasksService.findAll(sort, filter, page, pageSize);
+    console.log('controller ', { page, pageSize });
+    return this.tasksService.findAll(
+      sort,
+      filter,
+      ...[
+        !Number.isNaN(+page) ? +page : undefined,
+        !Number.isNaN(+pageSize) ? +pageSize : undefined,
+      ],
+    );
   }
 
   @Patch(':id/complete')

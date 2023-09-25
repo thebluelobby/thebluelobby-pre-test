@@ -5,7 +5,6 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  ValidateNested,
 } from 'class-validator';
 import { Priority } from '../entities/task.entity';
 import { Transform } from 'class-transformer';
