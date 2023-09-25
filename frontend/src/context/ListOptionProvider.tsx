@@ -1,21 +1,14 @@
 import { ReactNode, useReducer } from "react";
 import {
-  FilterTypes,
   ListOptionContext,
-  SortTypes,
+  listOptionInitial,
   listOptionReducer,
 } from "./ListOptionContext";
 
 type CountProviderProps = { children: ReactNode };
 
 function ListOptionProvider({ children }: CountProviderProps) {
-  const [state, dispatch] = useReducer(listOptionReducer, {
-    filter: FilterTypes.ALL,
-    sort: {
-      by: SortTypes.CREATION_DATE,
-      isAscendingOrder: true,
-    },
-  });
+  const [state, dispatch] = useReducer(listOptionReducer, listOptionInitial);
 
   const value = { state, dispatch };
   return (

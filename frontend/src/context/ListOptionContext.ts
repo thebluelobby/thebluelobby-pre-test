@@ -11,6 +11,14 @@ export enum SortTypes {
   "DUE_DATE" = "DUE_DATE",
 }
 
+const listOptionInitial = {
+  filter: FilterTypes.ALL,
+  sort: {
+    by: SortTypes.CREATION_DATE,
+    isAscendingOrder: true,
+  },
+};
+
 export interface IListOption {
   filter?: FilterTypes;
   sort?: {
@@ -19,26 +27,23 @@ export interface IListOption {
   };
 }
 
-type IAction = { type: "update-options" | "reset"; payload: IListOption };
+type IAction = { type: "update-options" | "reset"; payload?: IListOption };
 type IDispatch = (action: IAction) => void;
 
 const ListOptionContext = createContext<
   { state: IListOption; dispatch: IDispatch } | undefined
 >(undefined);
 
-function listOptionReducer(
-  state: IListOption,
-  action: {
-    type: string;
-    payload: IListOption;
-  }
-) {
+function listOptionReducer(state: IListOption, action: IAction) {
   switch (action.type) {
     case "update-options": {
       return {
         ...state,
         ...action.payload,
       };
+    }
+    case "reset": {
+      return state;
     }
     default: {
       throw new Error(`Unhandled action type: ${action.type}`);
@@ -53,4 +58,9 @@ function useListOption() {
   return context;
 }
 
-export { ListOptionContext, useListOption, listOptionReducer };
+export {
+  ListOptionContext,
+  useListOption,
+  listOptionReducer,
+  listOptionInitial,
+};

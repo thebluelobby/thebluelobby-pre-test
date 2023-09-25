@@ -1,4 +1,4 @@
-import { ChangeEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -7,21 +7,14 @@ import TableContainer from "@mui/material/TableContainer";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
-import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
+import Chip from "@mui/material/Chip";
 
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 
 import { Priority, Task } from "../types/tasks";
 import {
   completeTask,
-  createTask,
   getTasks,
   uncompleteTask,
   deleteTask,
@@ -32,11 +25,7 @@ import {
   useListOption,
 } from "../context/ListOptionContext";
 import { ListOptionMenu } from "./ListOptionMenu";
-
-interface FormData {
-  description: string;
-  priority?: Priority;
-}
+import { CreateTaskForm } from "./CreateTaskForm";
 
 export interface IFilterSortSetup {
   filter: FilterTypes;
@@ -50,11 +39,9 @@ type TaskSimplified = Omit<Task, "deletedAt" | "createdAt" | "updatedAt">;
 
 const FilterableTaskTable = () => {
   const [tasks, setTasks] = useState<TaskSimplified[]>([]);
-  const { state } = useListOption();
+  const [refresh, setRefresh] = useState<boolean>(false);
 
-  const [formData, setFormData] = useState<FormData>({
-    description: "",
-  });
+  const { state } = useListOption();
 
   useEffect(() => {
     getTasks(
@@ -75,23 +62,7 @@ const FilterableTaskTable = () => {
     )
       .then((results) => setTasks(results))
       .catch((err) => console.log(err));
-  }, [state]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    createTask(formData).then((newTask) => {
-      const { description, isCompleted, id, priority } = newTask;
-      setTasks([...tasks, { description, isCompleted, id, priority }]);
-    });
-    setFormData({
-      description: "",
-    });
-  };
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  }, [state, refresh]);
 
   const toggleTaskCompletion = (id: string) => {
     const task = tasks.find((t) => t.id === id);
@@ -119,6 +90,18 @@ const FilterableTaskTable = () => {
       .catch((err) => console.log(err));
   };
 
+  /*
+  to do
+  // - separation of concern
+  - lazy loading
+  - Implement local storage to persist tasks even after the browser is closed and reopened.
+- Add a feature to edit existing tasks.
+- Implement unit tests for components using a testing library like Jest and React Testing Library.
+- Add responsiveness to the app for different screen sizes.
+- Implement data validation and error handling
+- Add pagination to the list tasks endpoint, and implement infinite scrolling or a "Load more" button in the frontend.
+- Implement sorting options for tasks, such as by creation date, due date, or priority.
+   */
   return (
     <div>
       <ListOptionMenu />
@@ -126,14 +109,46 @@ const FilterableTaskTable = () => {
         <Table aria-label="Task Lists">
           <TableBody>
             {tasks.map((task) => (
-              <TableRow key={task.id}>
-                <TableCell>{task.description}</TableCell>
+              <TableRow
+                key={task.id}
+                sx={{
+                  ...(task.isCompleted
+                    ? {
+                        backgroundColor: "#f5f5f5",
+                      }
+                    : {}),
+                }}
+              >
+                <TableCell
+                  sx={{
+                    ...(task.isCompleted
+                      ? {
+                          textDecoration: "line-through",
+                          color: "gray",
+                        }
+                      : {}),
+                  }}
+                >
+                  {task.description}
+                </TableCell>
                 <TableCell
                   align="right"
                   sx={{
-                    width: "118px",
+                    width: "168px",
                   }}
                 >
+                  {task.priority === Priority.HIGH ? (
+                    <Chip
+                      label="High"
+                      size="small"
+                      color="error"
+                      variant="outlined"
+                    />
+                  ) : task.priority === Priority.LOW ? (
+                    <Chip label="Low" size="small" variant="outlined" />
+                  ) : (
+                    ""
+                  )}
                   <IconButton
                     type="button"
                     sx={{ p: "10px" }}
@@ -154,45 +169,7 @@ const FilterableTaskTable = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-      <Paper
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          p: "2px 4px",
-          display: "flex",
-          alignItems: "center",
-          margin: "20px 0",
-        }}
-      >
-        <FormControl sx={{ m: 1, minWidth: 120 }}>
-          <InputLabel>Priority</InputLabel>
-          <Select
-            label="Age"
-            onChange={handleChange}
-            value={formData?.priority || ""}
-            name="priority"
-          >
-            <MenuItem value={"LOW"}>Low</MenuItem>
-            <MenuItem value={"MEDIUM"}>Medium</MenuItem>
-            <MenuItem value={"HIGH"}>High</MenuItem>
-          </Select>
-        </FormControl>
-
-        <TextField
-          sx={{ ml: 1, flex: 1 }}
-          placeholder="Add Task"
-          inputProps={{ "aria-label": "Add Task" }}
-          onChange={handleChange}
-          name="description"
-          value={formData.description}
-          multiline
-          maxRows={5}
-        />
-        <IconButton type="submit" sx={{ p: "10px" }} aria-label="submit">
-          <ArrowUpwardIcon />
-        </IconButton>
-      </Paper>
+      <CreateTaskForm successFunction={() => setRefresh(!refresh)} />
     </div>
   );
 };
