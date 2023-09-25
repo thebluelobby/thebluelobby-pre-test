@@ -26,7 +26,8 @@ export class TasksService {
     const newTask = new TaskEntity();
     newTask.description = createTaskDto.description;
 
-    if (newTask?.priority?.length) newTask.priority = createTaskDto?.priority;
+    if (createTaskDto?.priority?.length)
+      newTask.priority = createTaskDto?.priority;
 
     return this.taskRepository.save(newTask);
   }
