@@ -32,7 +32,18 @@ export class TasksService {
     return this.taskRepository.save(newTask);
   }
 
-  findAll(sort?: SortDto, filter?: FilterDto): Promise<TaskEntity[]> {
+  async findAll(
+    sort?: SortDto,
+    filter?: FilterDto,
+    page = 1,
+    pageSize = 10,
+  ): Promise<{
+    data: TaskEntity[];
+    nextPage?: number;
+    previousPage?: number;
+    maxPage: number;
+    pageSize: number;
+  }> {
     const queryBuilder = this.taskRepository.createQueryBuilder('task');
     const { by = 'createdAt', order = 'DESC' } = sort || {};
 
@@ -44,7 +55,18 @@ export class TasksService {
         completed: filter.isCompleted,
       });
     }
-    return queryBuilder.getMany();
+    const totalCount = await queryBuilder.getCount();
+
+    const maxPage = Math.ceil(totalCount / pageSize);
+    const nextPage = page < maxPage ? page + 1 : undefined;
+    const previousPage = page > 1 ? page - 1 : undefined;
+
+    const data = await queryBuilder
+      .skip((page - 1) * pageSize)
+      .take(pageSize)
+      .getMany();
+
+    return { data, maxPage, pageSize, nextPage, previousPage };
   }
 
   complete(id: string): Promise<TaskEntity> {

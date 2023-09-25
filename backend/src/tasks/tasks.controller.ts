@@ -21,8 +21,13 @@ export class TasksController {
   }
 
   @Get()
-  findAll(@Query('sort') sort: SortDto, @Query('filter') filter: FilterDto) {
-    return this.tasksService.findAll(sort, filter);
+  findAll(
+    @Query('sort') sort: SortDto,
+    @Query('filter') filter: FilterDto,
+    @Query('page') page: number,
+    @Query('pageSize') pageSize: number,
+  ) {
+    return this.tasksService.findAll(sort, filter, page, pageSize);
   }
 
   @Patch(':id/complete')
