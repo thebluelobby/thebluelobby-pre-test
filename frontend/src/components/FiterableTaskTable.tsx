@@ -60,7 +60,7 @@ const FilterableTaskTable = () => {
           }
         : null
     )
-      .then((results) => setTasks(results))
+      .then((results) => setTasks(results.data))
       .catch((err) => console.log(err));
   }, [state, refresh]);
 
@@ -93,7 +93,6 @@ const FilterableTaskTable = () => {
   /*
   to do
   // - separation of concern
-  - lazy loading
   - Implement local storage to persist tasks even after the browser is closed and reopened.
 - Add a feature to edit existing tasks.
 - Implement unit tests for components using a testing library like Jest and React Testing Library.

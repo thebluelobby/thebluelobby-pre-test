@@ -39,10 +39,13 @@ export const getTasks = (
 ) => {
   console.log("filter", filter);
   console.log(generateTaskListUrl(filter, sort));
-  return fetchCall<Task[]>(
-    HttpMethod.GET,
-    `/tasks${generateTaskListUrl(filter, sort)}`
-  );
+  return fetchCall<{
+    data: Task[];
+    nextPage?: number;
+    previousPage?: number;
+    maxPage: number;
+    pageSize: number;
+  }>(HttpMethod.GET, `/tasks${generateTaskListUrl(filter, sort)}`);
 };
 
 export const createTask = (body: CreateTask) => {
