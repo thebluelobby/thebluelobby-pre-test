@@ -14,11 +14,12 @@ export const initFetch = (apiUrl: string) => {
   return <T>(
     method: HttpMethod,
     url: string,
-    opts: Options = { body: {}, headers: {} },
+    opts: Options = { body: {}, headers: {} }
   ): Promise<T> => {
     if (!/^(http|https)\:\/\//.test(url)) {
       url = apiUrl + url;
     }
+    console.log(opts);
 
     const headers = Object.assign(opts.headers || {}, {
       Accept: "application/json",

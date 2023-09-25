@@ -1,3 +1,5 @@
+import { ChangeEvent, useEffect, useState } from "react";
+
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -7,14 +9,15 @@ import Paper from "@mui/material/Paper";
 import Checkbox from "@mui/material/Checkbox";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
-import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
-import DeleteOutline from "@mui/icons-material/DeleteOutline";
 
 import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
-import { ChangeEvent, useEffect, useState } from "react";
+
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import DeleteOutline from "@mui/icons-material/DeleteOutline";
+
 import { Priority, Task } from "../types/tasks";
 import {
   completeTask,
@@ -23,26 +26,56 @@ import {
   uncompleteTask,
   deleteTask,
 } from "../api/tasks";
+import {
+  FilterTypes,
+  SortTypes,
+  useListOption,
+} from "../context/ListOptionContext";
+import { ListOptionMenu } from "./ListOptionMenu";
 
 interface FormData {
   description: string;
   priority?: Priority;
 }
 
+export interface IFilterSortSetup {
+  filter: FilterTypes;
+  sort: {
+    by: SortTypes;
+    isAscendingOrder: boolean;
+  };
+}
+
 type TaskSimplified = Omit<Task, "deletedAt" | "createdAt" | "updatedAt">;
 
 const FilterableTaskTable = () => {
   const [tasks, setTasks] = useState<TaskSimplified[]>([]);
+  const { state } = useListOption();
 
   const [formData, setFormData] = useState<FormData>({
     description: "",
   });
 
   useEffect(() => {
-    getTasks()
+    getTasks(
+      state.filter === FilterTypes.ALL
+        ? null
+        : { isCompleted: state.filter === FilterTypes.COMPLETED },
+      state.sort?.by?.length
+        ? {
+            by:
+              state.sort?.by === SortTypes.CREATION_DATE
+                ? "createdAt"
+                : state.sort?.by === SortTypes.PRIORITY
+                ? "priority"
+                : "dueDate",
+            order: state.sort.isAscendingOrder ? "ASC" : "DESC",
+          }
+        : null
+    )
       .then((results) => setTasks(results))
       .catch((err) => console.log(err));
-  }, []);
+  }, [state]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -85,8 +118,10 @@ const FilterableTaskTable = () => {
       })
       .catch((err) => console.log(err));
   };
+
   return (
     <div>
+      <ListOptionMenu />
       <TableContainer component={Paper}>
         <Table aria-label="Task Lists">
           <TableBody>
