@@ -32,7 +32,7 @@ export interface IListOption {
 }
 
 type IAction = {
-  type: "update-options" | "replace-options" | "reset";
+  type: "update-options" | "replace-options" | "increment-page" | "reset";
   payload?: IListOption;
 };
 type IDispatch = (action: IAction) => void;
@@ -53,6 +53,12 @@ function listOptionReducer(state: IListOption, action: IAction) {
       return {
         ...listOptionInitial,
         ...action.payload,
+      };
+    }
+    case "increment-page": {
+      return {
+        ...state,
+        page: state.page + 1,
       };
     }
     case "reset": {
