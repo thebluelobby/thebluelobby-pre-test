@@ -13,11 +13,11 @@ export interface Task {
 
   priority: Priority;
 
-  createdAt: Date;
+  createdAt: string;
 
-  updatedAt: Date;
+  updatedAt: string;
 
-  deletedAt: Date | null;
+  deletedAt: string | null;
 }
 
 export interface CreateTask {
