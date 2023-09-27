@@ -11,15 +11,20 @@ export class TasksService {
     private readonly taskRepository: Repository<TaskEntity>,
   ) {}
 
-  private toggleCompletion(id: string, value: boolean) {
-    return this.taskRepository
-      .findOneByOrFail({
+  private async toggleCompletion(
+    id: string,
+    value: boolean,
+  ): Promise<TaskEntity | undefined> {
+    try {
+      const task = await this.taskRepository.findOneByOrFail({
         id,
-      })
-      .then((task) => {
-        task.isCompleted = value;
-        return this.taskRepository.save(task);
       });
+      task.isCompleted = value;
+      return await this.taskRepository.save(task);
+    } catch (error) {
+      console.error(`Error toggling completion for task with id ${id}:`, error);
+      return undefined;
+    }
   }
 
   create(createTaskDto: CreateTaskDto): Promise<TaskEntity> {
@@ -69,11 +74,9 @@ export class TasksService {
     const maxPage = Math.ceil(totalCount / pageSize);
     const nextPage = page < maxPage ? page + 1 : undefined;
     const previousPage = page > 1 ? page - 1 : undefined;
-    // queryBuilder.skip((page - 1) * pageSize);
     queryBuilder.limit(pageSize);
 
     const data = await queryBuilder.offset((page - 1) * pageSize).getMany();
-    // const data = await queryBuilder.take(pageSize).getMany();
 
     return { data, maxPage, pageSize, nextPage, previousPage };
   }
