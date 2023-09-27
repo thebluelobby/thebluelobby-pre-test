@@ -51,6 +51,7 @@ export const ListOptionMenu = () => {
   const handleMenuClick = (event: MouseEvent<HTMLButtonElement>) => {
     setMenuAnchorEl(event.currentTarget);
   };
+
   const handleMenuClose = (type?: SortTypes) => {
     if (type) {
       dispatch({
@@ -99,26 +100,24 @@ export const ListOptionMenu = () => {
             }}
           >
             <Button
-              aria-controls={open ? "sort menu" : undefined}
-              aria-haspopup="true"
-              aria-expanded={open ? "true" : undefined}
+              aria-label="Sort By"
+              aria-haspopup="menu"
+              aria-expanded={open ? "true" : "false"}
+              aria-controls={open ? "sort-menu" : undefined}
               onClick={handleMenuClick}
             >
               Sort By: {sorter[state.sort.by].name}
             </Button>
             <Menu
+              id="sort-menu"
               anchorEl={menuAnchorEl}
               open={open}
               onClose={() => handleMenuClose()}
-              MenuListProps={{
-                "aria-labelledby": "basic-button",
-              }}
             >
-              {(Object.keys(sorter) as SortTypes[]).map((key) => (
+              {Object.keys(sorter).map((key) => (
                 <MenuItem
-                  onClick={() => handleMenuClose(key)}
-                  id={sorter[key].tag}
                   key={sorter[key].tag}
+                  onClick={() => handleMenuClose(key as SortTypes)}
                 >
                   <ListItemIcon>
                     {state?.sort.by === key &&
@@ -134,9 +133,9 @@ export const ListOptionMenu = () => {
             </Menu>
           </Box>
           <FormControl sx={{ m: 1, minWidth: 120 }}>
-            <InputLabel>Filter</InputLabel>
+            <InputLabel id="filter-select">Filter</InputLabel>
             <Select
-              labelId="demo-select-small-label"
+              labelId="filter-select"
               label="filter"
               name="filter"
               value={state.filter}

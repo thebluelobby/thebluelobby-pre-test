@@ -32,13 +32,16 @@ export const CreateTaskForm = ({
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-    createTask(formData).then(() => {
-      setFormData({
-        description: "",
+    if (!formData?.description?.length) {
+      alert("please provide task description.");
+    } else {
+      createTask(formData).then(() => {
+        setFormData({
+          description: "",
+        });
+        if (successFunction) successFunction();
       });
-      if (successFunction) successFunction();
-    });
+    }
   };
 
   return (
@@ -53,11 +56,12 @@ export const CreateTaskForm = ({
       }}
     >
       <FormControl sx={{ m: 1, minWidth: 120 }}>
-        <InputLabel>Priority</InputLabel>
+        <InputLabel id="priority-select">Priority</InputLabel>
         <Select
-          label="Age"
+          labelId="priority-select"
           onChange={handleChange}
           value={formData?.priority || ""}
+          label="priority"
           name="priority"
         >
           <MenuItem value={"LOW"}>Low</MenuItem>
