@@ -8,6 +8,7 @@ import Checkbox from "@mui/material/Checkbox";
 import IconButton from "@mui/material/IconButton";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
+import CircularProgress from "@mui/material/CircularProgress";
 import DeleteOutline from "@mui/icons-material/DeleteOutline";
 
 import { Priority } from "../types/tasks";
@@ -151,7 +152,19 @@ export const ListView = ({
           </Table>
         </TableContainer>
       </Box>
-      <Box ref={loaderRef}>{hasMore && <div>Loading...</div>}</Box>
+      <Box ref={loaderRef}>
+        {hasMore && (
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "center",
+              padding: "12px 0",
+            }}
+          >
+            <CircularProgress />
+          </Box>
+        )}
+      </Box>
     </Box>
   );
 };
