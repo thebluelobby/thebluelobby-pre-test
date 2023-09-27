@@ -3,7 +3,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 
 import "./App.css";
 import FilterableTaskTable from "./components/FiterableTaskTable";
-import PopUpContainer from "./components/PopupContainer";
+
 import { ListOptionProvider } from "./context/ListOptionProvider";
 
 function App() {
@@ -14,7 +14,6 @@ function App() {
         <ListOptionProvider>
           <FilterableTaskTable />
         </ListOptionProvider>
-        <PopUpContainer />
       </Container>
     </>
   );
