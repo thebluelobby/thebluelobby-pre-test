@@ -19,7 +19,6 @@ export const initFetch = (apiUrl: string) => {
     if (!/^(http|https)\:\/\//.test(url)) {
       url = apiUrl + url;
     }
-    console.log(opts);
 
     const headers = Object.assign(opts.headers || {}, {
       Accept: "application/json",

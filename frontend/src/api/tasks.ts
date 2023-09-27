@@ -48,8 +48,6 @@ export const getTasks = (
   page?: number,
   pageSize?: number
 ) => {
-  console.log("filter", filter);
-  console.log(generateTaskListUrl(filter, sort));
   return fetchCall<{
     data: Task[];
     nextPage?: number;

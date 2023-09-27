@@ -27,7 +27,6 @@ export class TasksController {
     @Query('page') page: string,
     @Query('pageSize') pageSize: string,
   ) {
-    console.log('controller ', { page, pageSize });
     return this.tasksService.findAll(
       sort,
       filter,

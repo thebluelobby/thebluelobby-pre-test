@@ -52,7 +52,6 @@ export class TasksService {
     if (!page || page < 1) {
       page = 1;
     }
-    console.log({ page, pageSize });
     const queryBuilder = this.taskRepository.createQueryBuilder('task');
     const { by = 'createdAt', order = 'DESC' } = sort || {};
 

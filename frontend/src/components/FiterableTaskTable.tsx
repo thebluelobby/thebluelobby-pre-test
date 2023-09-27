@@ -42,7 +42,6 @@ const FilterableTaskTable = () => {
   const prevPageRef = useRef<number>(1);
 
   useEffect(() => {
-    console.log(state);
     getTasks(
       state.filter === FilterTypes.ALL
         ? null
@@ -67,7 +66,6 @@ const FilterableTaskTable = () => {
         if (state?.page - prevPageRef.current === 1) {
           setTasks((prev) => [...(prev || []), ...data]);
         } else {
-          console.log("refresh", [...data]);
           setTasks([...data]);
         }
         prevPageRef.current = state.page;
